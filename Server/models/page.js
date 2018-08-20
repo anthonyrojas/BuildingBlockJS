@@ -13,11 +13,13 @@ const PageSchema = new Schema({
     },
     content: {
         type: [Schema.Types.ObjectId],
-        ref: 'Entry'
+        ref: 'Entry',
+        required: true
     },
     parent: {
-        type: [Schema.Types.ObjectId],
-        ref: 'Page'
+        type: Schema.Types.ObjectId,
+        ref: 'Page',
+        required: false
     }
 });
 module.exports = mongoose.model('Page', PageSchema);

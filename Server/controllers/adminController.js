@@ -11,53 +11,53 @@ exports.checkAdminExists = (req, res, next)=>{
             next();
         }
         //the admin has not been registered
-        res.status(404).json({message: 'You must register as an admin to finish setting up your site.', adminStatus: false});
+        return res.status(404).json({message: 'You must register as an admin to finish setting up your site.', adminStatus: false});
     }).catch(err=>{
-        res.status(400).json({message: 'Could not check admin status. Database error.', error: err.toString()});
+        return res.status(400).json({message: 'Could not check admin status. Database error.', error: err.toString()});
     });
 }
 
 exports.register = (req, res)=>{
     if(!req.body.email){
-        res.status(400).json({message: 'You must enter a valid email.'});
+        return res.status(400).json({message: 'You must enter a valid email.'});
     }else if(emailRegex.test(req.body.email) === false){
-        res.status(400).json({message: 'You must enter a valid email.'});
+        return res.status(400).json({message: 'You must enter a valid email.'});
     }
     if(!req.body.username){
-        res.status(400).json({message: 'You must enter a username.'});
+        return res.status(400).json({message: 'You must enter a username.'});
     }
     else if(/\s/g.test(req.body.username) === false){
-        res.status(400).json({message: 'Your username may not contain whitespace.'});
+        return res.status(400).json({message: 'Your username may not contain whitespace.'});
     }
     const username = req.body.username;
     if(username.length > config.USERNAME_MAX_LENGTH || username.length < config.USERNAME_MIN_LENGTH){
-        res.status(400).json({});
+        return res.status(400).json({});
     }
     if(!req.body.firstName){
-        res.status(400).json({message: 'You must enter your first name.'});
+        return res.status(400).json({message: 'You must enter your first name.'});
     }
     if(!req.body.lastName){
-        res.status(400).json({message: 'You must enter your last name.'});
+        return res.status(400).json({message: 'You must enter your last name.'});
     }
     if(!req.body.password){
-        res.status(400).json({message: 'You must enter a password.'});
+        return res.status(400).json({message: 'You must enter a password.'});
     }
     if(!req.body.confirmPassword){
-        res.status(400).json({message: 'You must confirm your password.'});
+        return res.status(400).json({message: 'You must confirm your password.'});
     }
     if(req.body.confirmPassword !== req.body.password){
-        res.status(400).json({message: 'Your passwords do not match.'});
+        return res.status(400).json({message: 'Your passwords do not match.'});
     }
     Admin.findOne({username: req.body.username}).then(adminFound => {
         if(adminFound){
             //strange error that should not occur on initialization
             //an admin has already been made, in which case cease the registration
-            res.status(500).json({message: 'It appears there is already an administrator for this site.'});
+            return res.status(500).json({message: 'It appears there is already an administrator for this site.'});
         }
         bcrypt.genSalt(config.SALT_ROUNDS, (err, salt)=>{
             bcrypt.hash(req.body.password, salt, (err, hashedPassword)=>{
                 if(err){
-                    res.status(500).json({message: 'Unable to securely register you at this time. Try again later.'});
+                    return res.status(500).json({message: 'Unable to securely register you at this time. Try again later.'});
                 }
                 let admin = new Admin({
                     username: req.body.username,
@@ -71,37 +71,37 @@ exports.register = (req, res)=>{
                         res.status(500).json({message: 'Database error. Unable to register you at this time. Please try again later.'});
                     }
                     savedAdmin.password = undefined;
-                    res.status(200).json({message: 'Successfully registered admin!', admin: savedAdmin});
+                    return res.status(200).json({message: 'Successfully registered admin!', admin: savedAdmin});
                 });
             });
         });
     }).catch(dbErr=>{
-        res.status(500).json({message: 'Database error. Cannot complete registation at this time.'});
+        return res.status(500).json({message: 'Database error. Cannot complete registation at this time.'});
     });
 }
 
 exports.login = (req, res, next)=>{
     if(!req.body.username){
-        res.status(400).json({message: 'Username required.'});
+        return res.status(400).json({message: 'Username required.'});
     }
     if(!req.body.password){
-        res.status(400).json({message: 'Password required.'});
+        return res.status(400).json({message: 'Password required.'});
     }
     const password = req.body.password;
     Admin.findOne({username: req.body.username}).then(admin=>{
         if(admin){
             bcrypt.compare(password, admin.password, (err, compareRes)=>{
                 if(!compareRes){
-                    res.status(404).json({message: 'Wrong password.'});
+                    return res.status(404).json({message: 'Wrong password.'});
                 }
                 res.locals.username = admin.username;
                 res.locals.email = admin.email;
                 next();
             })
         }
-        res.status(404).json({message: 'Wrong username.'});
+        return res.status(404).json({message: 'Wrong username.'});
     }).catch(dbErr=>{
-        res.status(500).json({message: 'Database error. Cannot login at this time.'});
+        return res.status(500).json({message: 'Database error. Cannot login at this time.'});
     });
 }
 exports.getConfiguration = (req, res, next)=>{
@@ -111,9 +111,9 @@ exports.getConfiguration = (req, res, next)=>{
             res.locals.username = undefined;
             next();
         }
-        res.status(404).json({message: 'Unable to obtain your admin data at this time.'});
+        return res.status(404).json({message: 'Unable to obtain your admin data at this time.'});
     }).catch(err => {
-        res.status(404).json({message: 'Unable to obtain your admin data at this time.'});
+        return res.status(404).json({message: 'Unable to obtain your admin data at this time.'});
     });
 }
 //send the dashboard data to the client
@@ -122,6 +122,6 @@ exports.getDashboard = (req, res)=>{
         if(err){
             res.status(500).json({message: 'Unable to obtain your admin data at this time.'});
         }
-        res.status(200).json({message: `Welcome, ${res.locals.user.firstName} ${res.locals.user.lastName}!`, admin: res.locals.user, pages: pages});
+        return res.status(200).json({message: `Welcome, ${res.locals.user.firstName} ${res.locals.user.lastName}!`, admin: res.locals.user, pages: pages});
     });
 }

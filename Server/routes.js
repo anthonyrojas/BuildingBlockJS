@@ -1,15 +1,16 @@
 const express = require('express');
 const adminController = require('./controllers/adminController');
 const authController = require('./controllers/authController');
+const pageController = require('./controllers/pageController');
+//router for public views
+const publicRoutes = express.Router();
+//router for admin views
+const adminRoutes = express.Router();
+//router for services views, such as file uploads or mail
+const serviceRoutes = express.Router();
 module.exports = (app)=>{
-    //router for public views
-    const publicRoutes = express.Router();
-    //router for admin views
-    const adminRoutes = express.Router();
-    //router for services views, such as file uploads or mail
-    const serviceRoutes = express.Router();
     //get the page data as a visitor
-    publicRoutes.get('/page/:name');
+    publicRoutes.get('/page/:name', pageController.getPage);
     app.use('/api/public', publicRoutes);
     //load the admin dashboard
     adminRoutes.get('/', adminController.checkAdminExists, authController.verifyLoginPassInfo, adminController.getDashboard);
