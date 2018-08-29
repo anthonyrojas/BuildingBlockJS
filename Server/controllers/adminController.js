@@ -1,3 +1,4 @@
+"use strict";
 const Admin = require('../models/admin');
 const Page = require('../models/page');
 const jwt = require('jsonwebtoken');

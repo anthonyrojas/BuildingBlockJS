@@ -1,6 +1,6 @@
 module.exports = {
-    DB_HOST: 'mongodb://localhost:27017/morningstarcms',
-    PORT: 3000,
+    DB_HOST: 'mongodb://localhost:27017/buildingblockjs',
+    PORT: 5000,
     USERNAME_MIN_LENGTH: 5,
     USERNAME_MAX_LENGTH: 40,
     PAGE_NAME_MAX_LENGTH: 160,

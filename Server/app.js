@@ -9,8 +9,37 @@ const express = require('express');
 var app = express();
 const server = http.createServer(app);
 const mongoose = require('mongoose');
-mongoose.Promise = global.Promise;
-mongoose.connect(config.DB_HOST);
+const Page = require('./models/page');
+mongoose.connect(config.DB_HOST, {useNewUrlParser: true});
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error'));
+db.once('open', ()=>{
+    console.log('connected to db');
+    Page.findOne({name: 'home'})
+    .then(pagesFound =>{
+        if(!pagesFound){
+            var homePage = new Page({
+                name: 'home',
+                title: 'BuildingBlockJS CMS | Home'
+            });
+            homePage.save((err, savedPage)=>{
+                if(err){
+                    console.log('unable to create the home page on init');
+                }
+            });
+        }
+    }).catch(err => {
+        var homePage = new Page({
+            name: 'home',
+            title: 'JS CMS | Home'
+        });
+        homePage.save((err, savedPage)=>{
+            if(err){
+                console.log('unable to create the home page on init');
+            }
+        });
+    });
+});
 app.set('trust proxy', '127.0.0.1');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -24,10 +53,11 @@ app.get('*', function(req, res, next) {
 });
 app.use((err, req, res, next)=>{
     if(err.message){
-        res.status(err.status);
-        res.json({message: err.message});
+        return res.status(err.status).json({message: err.message});
     }else{
-        res.status(500).json({message: 'Oops! Something went wrong'});
+        return res.status(500).json({message: 'Oops! Something went wrong'});
     }
 });
-server.listen(config.PORT || process.env.PORT);
+server.listen(config.PORT || process.env.PORT, ()=>{
+    console.log(`Listening on port ${config.PORT}`);
+});

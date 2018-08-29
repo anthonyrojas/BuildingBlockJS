@@ -63,7 +63,7 @@ exports.getPage = (req, res)=>{
         return res.status(400).json({message: 'Page name not provided'});
     }
     else{
-        Page.findOne({name: name}).populate('content').exec((err, pageFound)=>{
+        Page.findOne({name: req.params.name}).populate('content').exec((err, pageFound)=>{
            if(err){
                return res.status(404).json({message: 'Page not found.'});
            }else if(!pageFound){

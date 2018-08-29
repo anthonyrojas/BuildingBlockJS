@@ -17,7 +17,7 @@ const EntrySchema = new Schema({
     },
     stylings: {
         type: String,
-        required: true
+        required: false
     }
 });
 

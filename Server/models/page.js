@@ -14,7 +14,7 @@ const PageSchema = new Schema({
     content: {
         type: [Schema.Types.ObjectId],
         ref: 'Entry',
-        required: true
+        required: false
     },
     parent: {
         type: Schema.Types.ObjectId,
